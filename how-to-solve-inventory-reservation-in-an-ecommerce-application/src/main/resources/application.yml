@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: inventory-reservation-demo
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/inventory_demo
+    username: inventory
+    password: inventory
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
