@@ -1,32 +1,32 @@
 # Order duplication demo
 
-Code di kem bai viet "Lam sao tranh tao trung Order khi flash sale trong he thong e-commerce?" tren [davidnguyen.blog](https://davidnguyenblog.vercel.app/blog/how-to-avoid-duplicating-order-creation-in-an-ecommerce-application).
+Code đi kèm bài viết "Làm sao tránh tạo trùng Order khi flash sale trong hệ thống e-commerce?" trên [davidnguyen.blog](https://davidnguyenblog.vercel.app/blog/how-to-avoid-duplicating-order-creation-in-an-ecommerce-application).
 
-Project cai dat cac cach chong tao trung order duoc phan tich trong bai (cach 1 la nut bam o client nen khong co code):
+Project cài đặt các cách chống tạo trùng order được phân tích trong bài (cách 1 là nút bấm ở client nên không có code):
 
-2. `NaiveOrderService` - check-then-insert (co race condition, chi de minh hoa)
+2. `NaiveOrderService` - check-then-insert (có race condition, chỉ để minh họa)
 3. `UniqueKeyOrderService` - Idempotency-Key + UNIQUE constraint, insert-and-catch
-4. `IdempotentOrderService` - bang `idempotency_record` (key, request hash, order)
-5. `RedisGatedOrderService` - Redis SET NX EX chan som, DB van la chot chan cuoi
-6. `CheckoutTokenService` + `TokenOrderService` - token dung mot lan do server cap (Redis GETDEL)
+4. `IdempotentOrderService` - bảng `idempotency_record` (key, request hash, order)
+5. `RedisGatedOrderService` - Redis SET NX EX chặn sớm, DB vẫn là chốt chặn cuối
+6. `CheckoutTokenService` + `TokenOrderService` - token dùng một lần do server cấp (Redis GETDEL)
 
-## Yeu cau
+## Yêu cầu
 
 - Java 21+
 - Maven 3.9+
-- Docker (cho PostgreSQL va Redis)
+- Docker (cho PostgreSQL và Redis)
 
-## Chay thu
+## Chạy thử
 
 ```bash
-# 1. Khoi dong PostgreSQL (cong 5433) + Redis (cong 6379)
+# 1. Khởi động PostgreSQL (cổng 5433) + Redis (cổng 6379)
 docker compose up -d --wait
 
-# 2. Ban 50 thread cung luc vao moi cach
+# 2. Bắn 50 thread cùng lúc vào mỗi cách
 mvn test
 ```
 
-Ket qua mong doi (so don o cach 2 thay doi moi lan chay, cac cach con lai luon la 1):
+Kết quả mong đợi (số đơn ở cách 2 thay đổi mỗi lần chạy, các cách còn lại luôn là 1):
 
 ```
 [naive] responses=50, orders in DB=30
@@ -36,9 +36,9 @@ Ket qua mong doi (so don o cach 2 thay doi moi lan chay, cac cach con lai luon l
 [gated] responses=46, distinct ids=1, orders in DB=1
 ```
 
-Cach 5 va 6 co so response < 50 vi mot so request den khi order dang duoc ghi nen bi tu choi (409 hoac 400), client retry sau la duoc.
+Cách 5 và 6 có số response < 50 vì một số request đến khi order đang được ghi nên bị từ chối (409 hoặc 400), client retry sau là được.
 
-## Chay API
+## Chạy API
 
 ```bash
 mvn spring-boot:run
@@ -48,9 +48,9 @@ curl -X POST localhost:8080/api/orders/idempotent \
   -d '{"userId":1,"cartId":"cart-1","sku":"HEADPHONE-01","qty":1,"amount":99000}'
 ```
 
-Goi lai cung lenh se tra ve cung mot order. Doi noi dung body nhung giu key se nhan 422.
+Gọi lại cùng lệnh sẽ trả về cùng một order. Đổi nội dung body nhưng giữ key sẽ nhận 422.
 
-## Don dep
+## Dọn dẹp
 
 ```bash
 docker compose down -v

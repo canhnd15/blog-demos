@@ -54,7 +54,7 @@ class OrderDuplicationTest {
         }
     }
 
-    /** Ban THREADS request cung luc, tra ve cac ket qua (exception duoc bo qua nhung dem lai) */
+    /** Bắn THREADS request cùng lúc, trả về các kết quả (exception được bỏ qua nhưng đếm lại) */
     private List<Order> fire(Callable<Order> call) throws Exception {
         ExecutorService pool = Executors.newFixedThreadPool(THREADS);
         CountDownLatch start = new CountDownLatch(1);
@@ -65,7 +65,7 @@ class OrderDuplicationTest {
                 try {
                     return call.call();
                 } catch (Exception e) {
-                    return null; // vd: 409 dang xu ly o cach 5
+                    return null; // vd: 409 đang xử lý ở cách 5
                 }
             }));
         }
@@ -90,7 +90,7 @@ class OrderDuplicationTest {
         List<Order> results = fire(() -> naive.create(REQ));
         long inDb = orderRepository.countByUserId(1L);
         System.out.printf("[naive] responses=%d, orders in DB=%d%n", results.size(), inDb);
-        // Khong assert cung: so don trung thay doi moi lan chay. Muc tieu la quan sat inDb > 1.
+        // Không assert cứng: số đơn trùng thay đổi mỗi lần chạy. Mục tiêu là quan sát inDb > 1.
     }
 
     @Test

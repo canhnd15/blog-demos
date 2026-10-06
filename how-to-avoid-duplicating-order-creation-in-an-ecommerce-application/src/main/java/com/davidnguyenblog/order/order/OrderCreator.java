@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Ghi mot order trong mot transaction. Cac cach 2, 5, 6 dung chung. */
+/** Ghi một order trong một transaction. Các cách 2, 5, 6 dùng chung. */
 @Service
 @RequiredArgsConstructor
 public class OrderCreator {
@@ -23,7 +23,7 @@ public class OrderCreator {
         o.setStatus("CREATED");
         o.setIdempotencyKey(idempotencyKey);
         o.setCreatedAt(Instant.now());
-        // saveAndFlush de loi UNIQUE no ra ngay trong transaction nay
+        // saveAndFlush để lỗi UNIQUE nổ ra ngay trong transaction này
         return orderRepository.saveAndFlush(o);
     }
 }

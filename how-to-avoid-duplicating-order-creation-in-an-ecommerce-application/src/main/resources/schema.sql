@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS orders (
     qty             INT         NOT NULL,
     amount          BIGINT      NOT NULL,
     status          VARCHAR(16) NOT NULL,
-    -- Nullable: cach 2 (naive) khong dung key. Postgres cho phep nhieu NULL trong UNIQUE.
+    -- Nullable: cách 2 (naive) không dùng key. Postgres cho phép nhiều NULL trong UNIQUE.
     idempotency_key VARCHAR(64) UNIQUE,
     created_at      TIMESTAMPTZ NOT NULL
 );

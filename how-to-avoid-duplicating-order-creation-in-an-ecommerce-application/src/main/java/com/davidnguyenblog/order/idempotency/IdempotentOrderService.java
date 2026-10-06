@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Cach 4: bang idempotency_record, key + request hash + order da tao. */
+/** Cách 4: bảng idempotency_record, key + request hash + order đã tạo. */
 @Service
 @RequiredArgsConstructor
 public class IdempotentOrderService {
@@ -25,17 +25,17 @@ public class IdempotentOrderService {
     public Order create(CreateOrderRequest req, String key) {
         String hash = sha256(req.canonical());
 
-        // Request thu hai dung key nay se bi chan o day cho toi khi request dau commit hoac rollback
+        // Request thứ hai dùng key này sẽ bị chặn ở đây cho tới khi request đầu commit hoặc rollback
         if (recordRepository.insertIfAbsent(key, req.userId(), hash) == 0) {
             IdempotencyRecord rec = recordRepository.findById(key).orElseThrow();
             if (rec.getUserId() != req.userId() || !rec.getRequestHash().equals(hash)) {
-                // Cung key nhung noi dung khac: loi cua client (hoac bi gia mao)
+                // Cùng key nhưng nội dung khác: lỗi của client (hoặc bị giả mạo)
                 throw new IdempotencyConflictException("Idempotency-Key da duoc dung cho request khac");
             }
             return orderRepository.findById(rec.getOrderId()).orElseThrow();
         }
 
-        // Record va order nam cung transaction: cung commit hoac cung rollback
+        // Record và order nằm cùng transaction: cùng commit hoặc cùng rollback
         Order order = creator.create(req, null);
         recordRepository.attachOrder(key, order.getId());
         return order;

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Cach 2: check-then-insert. Co race condition, chi de minh hoa. */
+/** Cách 2: check-then-insert. Có race condition, chỉ để minh họa. */
 @Service
 @RequiredArgsConstructor
 public class NaiveOrderService {
@@ -13,7 +13,7 @@ public class NaiveOrderService {
     private final OrderRepository orderRepository;
     private final OrderCreator creator;
 
-    // Dung dung: giua SELECT va INSERT co khoang ho
+    // Đừng dùng: giữa SELECT và INSERT có khoảng hở
     @Transactional
     public Order create(CreateOrderRequest req) {
         List<Order> existing = orderRepository.findByUserIdAndCartId(req.userId(), req.cartId());

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-/** Cach 5: Redis SET NX EX chan som request trung, DB (cach 3) van la chot chan cuoi. */
+/** Cách 5: Redis SET NX EX chặn sớm request trùng, DB (cách 3) vẫn là chốt chặn cuối. */
 @Service
 @RequiredArgsConstructor
 public class RedisGatedOrderService {
@@ -26,14 +26,14 @@ public class RedisGatedOrderService {
 
         Boolean acquired = redis.opsForValue().setIfAbsent(redisKey, "PROCESSING", WINDOW);
         if (!Boolean.TRUE.equals(acquired)) {
-            // Request trung: neu order da co thi tra ve, chua co thi bao dang xu ly
+            // Request trùng: nếu order đã có thì trả về, chưa có thì báo đang xử lý
             return orderRepository.findByIdempotencyKey(key)
                     .orElseThrow(() -> new RequestInProgressException("Order dang duoc xu ly"));
         }
         try {
             return dbService.create(req, key);
         } catch (RuntimeException ex) {
-            redis.delete(redisKey); // that bai thi nha key de client retry duoc
+            redis.delete(redisKey); // thất bại thì nhả key để client retry được
             throw ex;
         }
     }

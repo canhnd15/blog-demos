@@ -18,10 +18,10 @@ public class TokenOrderService {
 
     public Order create(CreateOrderRequest req, String token) {
         if (tokenService.consume(token, req.userId(), req.cartId())) {
-            // Token cung la idempotency key o DB: lop bao ve cuoi neu Redis mat du lieu
+            // Token cũng là idempotency key ở DB: lớp bảo vệ cuối nếu Redis mất dữ liệu
             return dbService.create(req, token);
         }
-        // Token khong con: da dung roi (retry hop le) hoac gia mao
+        // Token không còn: đã dùng rồi (retry hợp lệ) hoặc giả mạo
         return orderRepository.findByIdempotencyKey(token)
                 .filter(o -> o.getUserId() == req.userId())
                 .orElseThrow(() -> new InvalidTokenException("Token khong hop le hoac het han"));

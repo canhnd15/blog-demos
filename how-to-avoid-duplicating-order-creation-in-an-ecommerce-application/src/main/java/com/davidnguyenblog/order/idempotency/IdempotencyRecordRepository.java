@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface IdempotencyRecordRepository extends JpaRepository<IdempotencyRecord, String> {
 
-    // 1 = minh la nguoi dau tien, 0 = key da ton tai
+    // 1 = mình là người đầu tiên, 0 = key đã tồn tại
     @Modifying
     @Query(nativeQuery = true, value = """
         INSERT INTO idempotency_record (idempotency_key, user_id, request_hash, created_at)
