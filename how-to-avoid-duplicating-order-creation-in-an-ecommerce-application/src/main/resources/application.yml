@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: order-duplication-demo
+  datasource:
+    url: jdbc:postgresql://localhost:5433/order_demo
+    username: orders
+    password: orders
+    hikari:
+      maximum-pool-size: 30
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+  data:
+    redis:
+      host: localhost
+      port: 6379
